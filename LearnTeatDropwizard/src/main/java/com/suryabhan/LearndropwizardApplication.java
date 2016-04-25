@@ -1,13 +1,12 @@
 package com.suryabhan;
 
-import com.suryabhan.core.TestDatabase;
-import com.suryabhan.db.TestDataDAO;
+import com.suryabhan.db.TestdbjdbiDAO;
 import com.suryabhan.resources.SayHelloResource;
 import io.dropwizard.Application;
-import io.dropwizard.db.DataSourceFactory;
-import io.dropwizard.hibernate.HibernateBundle;
+import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.skife.jdbi.v2.DBI;
 
 public class LearndropwizardApplication extends Application<LearndropwizardConfiguration> {
 
@@ -22,36 +21,20 @@ public class LearndropwizardApplication extends Application<LearndropwizardConfi
 
     @Override
     public void initialize(final Bootstrap<LearndropwizardConfiguration> bootstrap) {
-        // TODO: application initialization
-        bootstrap.addBundle(hibernateBundle);
+
     }
 
-    /**
-     * Hibernate bundle.
-     */
-    private final HibernateBundle<LearndropwizardConfiguration> hibernateBundle
-            = new HibernateBundle<LearndropwizardConfiguration>(
-            TestDatabase.class
-    ) {
-
-        @Override
-        public DataSourceFactory getDataSourceFactory(
-                LearndropwizardConfiguration configuration
-        ) {
-            return configuration.getDatabase();
-        }
-
-    };
 
     @Override
     public void run(final LearndropwizardConfiguration configuration,
                     final Environment environment) {
 
 
-        //Create Employee DAO.
-        final TestDataDAO testDataDAO
-                = new TestDataDAO(hibernateBundle.getSessionFactory());
-        //endregion
+
+        final DBIFactory factory = new DBIFactory();
+        final DBI jdbi = factory.build(environment,configuration.getDatabase() , "postgresql");
+
+        final TestdbjdbiDAO testDataDAO = jdbi.onDemand(TestdbjdbiDAO.class);
 
         environment.jersey().register(new SayHelloResource(testDataDAO));
     }

@@ -1,9 +1,8 @@
 package com.suryabhan.resources;
 
-import com.suryabhan.core.TestDatabase;
-import com.suryabhan.db.TestDataDAO;
+import com.suryabhan.core.TestDabsejdbi;
+import com.suryabhan.db.TestdbjdbiDAO;
 import io.dropwizard.hibernate.UnitOfWork;
-import org.hibernate.HibernateException;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -15,29 +14,57 @@ import java.util.List;
  */
 
 @Path("/hello-world")
-@Produces(MediaType.APPLICATION_JSON)
+@Consumes({MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_JSON})
 public class SayHelloResource
 {
-    private final TestDataDAO enterDataDAO;
+    private final TestdbjdbiDAO enterDataDAO;
 
-    public SayHelloResource(TestDataDAO enterDataDAO) {
+    public SayHelloResource(TestdbjdbiDAO enterDataDAO) {
         this.enterDataDAO = enterDataDAO;
     }
 
 
     @GET
     @UnitOfWork
-    public List<TestDatabase> SayHello()
+    public List<TestDabsejdbi> SayHello()
     {
-        return enterDataDAO.findAll();
+        return enterDataDAO.getAll();
     }
+
+    @GET
+    @UnitOfWork
+    @Path("/{id}")
+    public TestDabsejdbi getbyid(@PathParam("id") Integer id)
+    {
+        return enterDataDAO.getbyid(id);
+    }
+
 
     @POST
     @UnitOfWork
-    public int insetdata(TestDatabase db)
+    public int insetdata(TestDabsejdbi db)
     {
-        return enterDataDAO.EnterDate(db);
+        return enterDataDAO.insert(db);
     }
+
+    @PUT
+    @UnitOfWork
+    @Path("/{id}")
+    public int updatedata(@PathParam("id") Integer id, @Valid TestDabsejdbi db)
+    {
+        db.setId(id);
+        return enterDataDAO.update(db);
+    }
+
+    @DELETE
+    @UnitOfWork
+    @Path("/{id}")
+    public int deletedata(@PathParam("id") Integer id)
+    {
+        return enterDataDAO.deletebyid(id);
+    }
+
 
 
 
